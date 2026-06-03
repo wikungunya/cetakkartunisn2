@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kartu NISN Online</title>
+    <!-- MENGGUNAKAN TAILWIND V3 CDN (Jauh lebih stabil untuk lokal file) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script>
+        // Fallback otomatis jika script v4 di atas gagal memuat grid/layout
+        if (!window.tailwind) {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"><\/script>');
+        }
+    </script>
+    <!-- Pustaka html2pdf untuk unduh file -->
+    <script src="https://cloudflare.com"></script>
+    
+    <style>
+        /* Mengunci ukuran kartu agar presisi standar ID Card (85.6mm x 53.98mm) */
+        .box-kartu {
+            width: 428px !important;
+            height: 270px !important;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+            border-radius: 12px !important;
+            position: relative !important;
+            color: white !important;
+            font-family: Arial, sans-serif !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            padding: 16px !important;
+            box-sizing: border-box !important;
+        }
+        .kartu-bg-pattern {
+            position: absolute !important;
+            inset: 0 !important;
+            opacity: 0.1 !important;
+            background-image: radial-gradient(circle at 20% 30%, #ffffff 1px, transparent 1px), radial-gradient(circle at 75% 70%, #ffffff 1px, transparent 1px) !important;
+            background-size: 20px 20px !important;
+            z-index: 1 !important;
+        }
+        .konten-z {
+            position: relative !important;
+            z-index: 10 !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-10 px-4" style="font-family: sans-serif;">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 md:p-8">
+        <h1 class="text-2xl font-bold text-center text-blue-900 mb-2">Aplikasi Cetak Kartu NISN</h1>
+        <p class="text-gray-500 text-center text-sm mb-8">Masukkan data siswa untuk membuat kartu NISN otomatis standar nasional.</p>
+
+        <!-- Layout Grid Menggunakan Flexbox Fallback agar tidak pecah di lokal -->
+        <div style="display: flex; flex-wrap: wrap; gap: 32px;">
+            
+            <!-- Kolom Kiri: Form Input -->
+            <div style="flex: 1; min-width: 300px;" class="space-y-4">
+                <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 mb-4">Formulir Data Siswa</h2>
+                
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 uppercase">Nomor NISN</label>
+                    <input type="text" id="inputNisn" value="0123456789" class="mt-1 w-full border border-gray-300 rounded-md p-2 text-sm outline-none focus:border-blue-500" placeholder="Contoh: 0123456789" oninput="updateCard()">
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 uppercase">Nama Lengkap</label>
+                    <input type="text" id="inputNama" value="NAMA SISWA LENGKAP" class="mt-1 w-full border border-gray-300 rounded-md p-2 text-sm outline-none focus:border-blue-500" placeholder="Masukkan nama" oninput="updateCard()">
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 uppercase">Tempat Lahir</label>
+                    <input type="text" id="inputTempat" value="JAKARTA" class="mt-1 w-full border border-gray-300 rounded-md p-2 text-sm outline-none focus:border-blue-500" placeholder="Tempat lahir" oninput="updateCard()">
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 uppercase">Tanggal Lahir</label>
+                    <input type="date" id="inputTanggal" value="2012-01-01" class="mt-1 w-full border border-gray-300 rounded-md p-2 text-sm outline-none focus:border-blue-500" oninput="updateCard()">
+                </div>
+
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 uppercase">Jenis Kelamin</label>
+                    <select id="inputLp" class="mt-1 w-full border border-gray-300 rounded-md p-2 text-sm outline-none focus:border-blue-500" onchange="updateCard()">
+                        <option value="Laki-laki" selected>Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Preview Kartu Tetap Utuh -->
+            <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;" class="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300">
+                <h2 class="text-sm font-semibold text-gray-400 mb-4 uppercase tracking-wider">Pratinjau Kartu</h2>
+                
+                <!-- Box Kartu Utama -->
+                <div id="areaKartu" class="box-kartu">
+                    <div class="kartu-bg-pattern"></div>
+                    
+                    <!-- Header Kartu -->
+                    <div class="konten-z" style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #60a5fa; padding-bottom: 8px;">
+                        <img src="https://wikimedia.org" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
+                            <p style="margin: 2px 0 0 0; font-size: 9px; color: #93c5fd; text-transform: uppercase; font-weight: 600;">Kartu Nomor Induk Siswa Nasional (NISN)</p>
+                        </div>
+                    </div>
+
+                    <!-- Isi Informasi Siswa -->
+                    <div class="konten-z" style="display: flex; align-items: center; gap: 16px; margin: auto 0;">
+                        <!-- Pas Foto Placeholder -->
+                        <div style="width: 72px; height: 96px; background-color: #e5e7eb; border: 2px solid white; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 10px; flex-shrink: 0;">
+                            Foto 2x3
+                        </div>
+                        
+                        <!-- Detail Data teks -->
+                        <div style="font-size: 11px; line-height: 1.6; flex-grow: 1; color: white;">
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 80px; color: #93c5fd; font-weight: 650;">NISN</td>
+                                    <td style="width: 10px;">:</td>
+                                    <td id="cardNisn" style="color: #fde047; font-weight: bold; letter-spacing: 1px;">0123456789</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #93c5fd; font-weight: 650;">Nama</td>
+                                    <td>:</td>
+                                    <td id="cardNama" style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">NAMA SISWA LENGKAP</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #93c5fd; font-weight: 650;">TTL</td>
+                                    <td>:</td>
+                                    <td id="cardTtl" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">JAKARTA, 01/01/2012</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #93c5fd; font-weight: 650;">Jkel</td>
+                                    <td>:</td>
+                                    <td id="cardLp">Laki-laki</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu -->
+                    <div class="konten-z" style="text-align: right; font-size: 8px; color: #93c5fd; border-top: 1px solid #60a5fa; padding-top: 4px;">
+                        * Kartu ini diterbitkan otomatis secara digital.
+                    </div>
+                </div>
+
+                <!-- Tombol Cetak -->
+                <button onclick="unduhPDF()" class="mt-6 w-full style-button" style="max-width: 428px; background-color: #059669; color: white; font-weight: bold; padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                    Cetak / Unduh PDF
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function formatTanggal(stringTanggal) {
+            if (!stringTanggal) return "-";
+            const opsi = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return new Date(stringTanggal).toLocaleDateString('id-ID', opsi);
+        }
+
+        function updateCard() {
+            const nisn = document.getElementById('inputNisn').value;
+            const nama = document.getElementById('inputNama').value;
+            const tempat = document.getElementById('inputTempat').value;
