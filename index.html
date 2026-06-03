@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Kartu NISN</title>
+    
+    <!-- Pustaka khusus untuk konversi HTML ke PDF otomatis via web (Wajib untuk GitHub) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         /* Desain Dasar Halaman */
         body {
@@ -80,7 +84,6 @@
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         /* Bagian Atas Kartu / Kop */
@@ -157,14 +160,14 @@
             padding-top: 4px;
         }
 
-        /* Tombol Cetak */
+        /* Tombol Download */
         .btn {
             margin-top: 15px;
             width: 428px;
             background-color: #10b981;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
@@ -210,49 +213,54 @@
         <div class="kolom-preview">
             <span style="font-size: 12px; color: #888; margin-bottom: 10px; font-weight: bold;">PRATINJAU KARTU</span>
             
-            <div class="kartu-id">
-                <div class="kartu-header">
-                    <img src="https://wikimedia.org" alt="Logo">
-                    <div class="kartu-header-teks">
-                        <h3>KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
-                        <p>KARTU NOMOR INDUK SISWA NASIONAL (NISN)</p>
+            <!-- BLOK KARTU YANG AKAN DI-CAPTURE MENJADI PDF -->
+            <div id="blokKartu">
+                <div class="kartu-id">
+                    <div class="kartu-header">
+                        <!-- Menggunakan Logo Resmi Kemendikbud Wikipedia dengan Atribut Lintas Domain -->
+                        <img src="https://wikimedia.org" crossorigin="anonymous" alt="Logo">
+                        <div class="kartu-header-teks">
+                            <h3>KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
+                            <p>KARTU NOMOR INDUK SISWA NASIONAL (NISN)</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="kartu-bodi">
-                    <div class="foto-box">Foto 2x3</div>
-                    <div style="flex-grow: 1;">
-                        <table class="tabel-data">
-                            <tr>
-                                <td class="kolom-label">NISN</td>
-                                <td style="width: 8px;">:</td>
-                                <td id="outNisn" class="nilai-nisn">0123456789</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">Nama</td>
-                                <td>:</td>
-                                <td id="outNama" style="font-weight: bold;">NAMA SISWA LENGKAP</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">TTL</td>
-                                <td>:</td>
-                                <td id="outTtl">JAKARTA, 01/01/2012</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">J. Kelamin</td>
-                                <td>:</td>
-                                <td id="outJkel">Laki-laki</td>
-                            </tr>
-                        </table>
+                    <div class="kartu-bodi">
+                        <div class="foto-box">Foto 2x3</div>
+                        <div style="flex-grow: 1;">
+                            <table class="tabel-data">
+                                <tr>
+                                    <td class="kolom-label">NISN</td>
+                                    <td style="width: 8px;">:</td>
+                                    <td id="outNisn" class="nilai-nisn">0123456789</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">Nama</td>
+                                    <td>:</td>
+                                    <td id="outNama" style="font-weight: bold;">NAMA SISWA LENGKAP</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">TTL</td>
+                                    <td>:</td>
+                                    <td id="outTtl">JAKARTA, 01/01/2012</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">J. Kelamin</td>
+                                    <td>:</td>
+                                    <td id="outJkel">Laki-laki</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <div class="kartu-footer">
-                    * Kartu diterbitkan secara sistem digital otomatis
+                    <div class="kartu-footer">
+                        * Kartu diterbitkan secara sistem digital otomatis
+                    </div>
                 </div>
             </div>
 
-            <button class="btn" onclick="alert('Fungsi cetak siap dikembangkan!')">Cetak Kartu</button>
+            <!-- TOMBOL DOWNLOAD PDF KUSTOM GITHUB -->
+            <button class="btn" onclick="unduhKartuPDF()">Unduh Kartu (PDF)</button>
         </div>
     </div>
 
@@ -277,10 +285,5 @@
             document.getElementById('outJkel').innerText = jkel;
         }
 
-        // Jalankan sinkronisasi pertama kali saat halaman dibuka
-        window.onload = function() {
-            jalankanUpdate();
-        };
-    </script>
-</body>
-</html>
+        // FUNGSI UTAMA DOWNLOAD DI GITHUB PAGES
+        function unduhKartuPDF() {
