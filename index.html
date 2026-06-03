@@ -71,10 +71,12 @@
         .kartu-id {
             width: 428px;
             height: 270px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+            -webkit-print-color-adjust: exact; /* Memaksa printer/PDF memuat warna gradasi */
+            print-color-adjust: exact;
             border-radius: 12px;
             padding: 15px;
-            color: #ffffff;
+            color: #ffffff !important;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -101,11 +103,12 @@
             font-size: 10px;
             font-weight: bold;
             letter-spacing: 0.3px;
+            color: #ffffff !important;
         }
         .kartu-header-teks p {
             margin: 2px 0 0 0;
             font-size: 8px;
-            color: #93c5fd;
+            color: #93c5fd !important;
             font-weight: bold;
         }
 
@@ -133,18 +136,19 @@
             width: 100%;
             font-size: 11px;
             border-collapse: collapse;
+            color: #ffffff !important;
         }
         .tabel-data td {
             padding: 3px 0;
             vertical-align: top;
         }
         .kolom-label {
-            color: #93c5fd;
+            color: #93c5fd !important;
             font-weight: bold;
             width: 75px;
         }
         .nilai-nisn {
-            color: #fde047;
+            color: #fde047 !important;
             font-weight: bold;
         }
 
@@ -152,7 +156,7 @@
         .kartu-footer {
             text-align: right;
             font-size: 8px;
-            color: #93c5fd;
+            color: #93c5fd !important;
             border-top: 1px solid rgba(255,255,255,0.2);
             padding-top: 4px;
         }
@@ -172,6 +176,29 @@
         }
         .btn:hover {
             background-color: #059669;
+        }
+
+        /* ======================================================= */
+        /* CSS KHUSUS SAAT TOMBOL CETAK DIKLIK (PERINTAH PRINTER)  */
+        /* ======================================================= */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+                margin: 0;
+            }
+            .wrapper, .kolom-form, .kolom-preview, .btn, h2, span {
+                display: none !important; /* Sembunyikan semua form & tombol */
+            }
+            #areaCetak {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            .kartu-id {
+                box-shadow: none !important; /* Hilangkan bayangan saat diprint */
+            }
         }
     </style>
 </head>
@@ -210,49 +237,53 @@
         <div class="kolom-preview">
             <span style="font-size: 12px; color: #888; margin-bottom: 10px; font-weight: bold;">PRATINJAU KARTU</span>
             
-            <div class="kartu-id">
-                <div class="kartu-header">
-                    <img src="https://wikimedia.org" alt="Logo">
-                    <div class="kartu-header-teks">
-                        <h3>KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
-                        <p>KARTU NOMOR INDUK SISWA NASIONAL (NISN)</p>
+            <!-- ELEMENT UTAMA YANG AKAN DICETAK -->
+            <div id="areaCetak">
+                <div class="kartu-id">
+                    <div class="kartu-header">
+                        <img src="https://wikimedia.org" alt="Logo">
+                        <div class="kartu-header-teks">
+                            <h3>KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
+                            <p>KARTU NOMOR INDUK SISWA NASIONAL (NISN)</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="kartu-bodi">
-                    <div class="foto-box">Foto 2x3</div>
-                    <div style="flex-grow: 1;">
-                        <table class="tabel-data">
-                            <tr>
-                                <td class="kolom-label">NISN</td>
-                                <td style="width: 8px;">:</td>
-                                <td id="outNisn" class="nilai-nisn">0123456789</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">Nama</td>
-                                <td>:</td>
-                                <td id="outNama" style="font-weight: bold;">NAMA SISWA LENGKAP</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">TTL</td>
-                                <td>:</td>
-                                <td id="outTtl">JAKARTA, 01/01/2012</td>
-                            </tr>
-                            <tr>
-                                <td class="kolom-label">J. Kelamin</td>
-                                <td>:</td>
-                                <td id="outJkel">Laki-laki</td>
-                            </tr>
-                        </table>
+                    <div class="kartu-bodi">
+                        <div class="foto-box">Foto 2x3</div>
+                        <div style="flex-grow: 1;">
+                            <table class="tabel-data">
+                                <tr>
+                                    <td class="kolom-label">NISN</td>
+                                    <td style="width: 8px;">:</td>
+                                    <td id="outNisn" class="nilai-nisn">0123456789</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">Nama</td>
+                                    <td>:</td>
+                                    <td id="outNama" style="font-weight: bold;">NAMA SISWA LENGKAP</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">TTL</td>
+                                    <td>:</td>
+                                    <td id="outTtl">JAKARTA, 01/01/2012</td>
+                                </tr>
+                                <tr>
+                                    <td class="kolom-label">J. Kelamin</td>
+                                    <td>:</td>
+                                    <td id="outJkel">Laki-laki</td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-                <div class="kartu-footer">
-                    * Kartu diterbitkan secara sistem digital otomatis
+                    <div class="kartu-footer">
+                        * Kartu diterbitkan secara sistem digital otomatis
+                    </div>
                 </div>
             </div>
 
-            <button class="btn" onclick="alert('Fungsi cetak siap dikembangkan!')">Cetak Kartu</button>
+            <!-- TOMBOL CETAK BARU -->
+            <button class="btn" onclick="aksiCetak()">Cetak / Simpan Ke PDF</button>
         </div>
     </div>
 
@@ -265,22 +296,3 @@
         }
 
         function jalankanUpdate() {
-            var nisn = document.getElementById('inNisn').value;
-            var nama = document.getElementById('inNama').value;
-            var tempat = document.getElementById('inTempat').value;
-            var tanggal = document.getElementById('inTanggal').value;
-            var jkel = document.getElementById('inJkel').value;
-
-            document.getElementById('outNisn').innerText = nisn || '-';
-            document.getElementById('outNama').innerText = nama.toUpperCase() || '-';
-            document.getElementById('outTtl').innerText = (tempat.toUpperCase() || '-') + ', ' + ubahTanggal(tanggal);
-            document.getElementById('outJkel').innerText = jkel;
-        }
-
-        // Jalankan sinkronisasi pertama kali saat halaman dibuka
-        window.onload = function() {
-            jalankanUpdate();
-        };
-    </script>
-</body>
-</html>
